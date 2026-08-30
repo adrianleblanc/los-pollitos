@@ -6,16 +6,18 @@ import {
   Play,
   Film,
   Hash,
-  ChevronLeft,
-  ChevronRight,
   X,
   Sparkles,
+  ChevronDown,
+  Layers,
 } from "lucide-react";
 import { YouTubeVideo, POPULAR_HASHTAGS } from "@/services/youtube-public";
 import { VideoModal } from "./video-modal";
 
 interface VideoGridProps {
   videos: YouTubeVideo[];
+  initialCategory?: string;
+  initialHashtag?: string | null;
 }
 
 const CATEGORIES = [
@@ -27,19 +29,24 @@ const CATEGORIES = [
   { id: "shorts", label: "⚡ Shorts Rápidos" },
 ];
 
-const ITEMS_PER_PAGE = 9;
+const INITIAL_VISIBLE_COUNT = 12;
+const LOAD_MORE_STEP = 12;
 
-export function VideoGrid({ videos }: VideoGridProps) {
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [selectedHashtag, setSelectedHashtag] = useState<string | null>(null);
+export function VideoGrid({
+  videos,
+  initialCategory = "all",
+  initialHashtag = null,
+}: VideoGridProps) {
+  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
+  const [selectedHashtag, setSelectedHashtag] = useState<string | null>(initialHashtag);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [visibleCount, setVisibleCount] = useState<number>(INITIAL_VISIBLE_COUNT);
   const [activeModalVideo, setActiveModalVideo] =
     useState<YouTubeVideo | null>(null);
 
-  // Reset to page 1 whenever filters change
+  // Reset visible count on filter/search change
   useEffect(() => {
-    setCurrentPage(1);
+    setVisibleCount(INITIAL_VISIBLE_COUNT);
   }, [selectedCategory, selectedHashtag, searchQuery]);
 
   // Filtered list
@@ -63,22 +70,10 @@ export function VideoGrid({ videos }: VideoGridProps) {
     });
   }, [videos, selectedCategory, selectedHashtag, searchQuery]);
 
-  // Total pages
-  const totalPages = Math.ceil(filteredVideos.length / ITEMS_PER_PAGE) || 1;
-
-  // Sliced page items
-  const paginatedVideos = useMemo(() => {
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredVideos.slice(start, start + ITEMS_PER_PAGE);
-  }, [filteredVideos, currentPage]);
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-    const section = document.getElementById("videos");
-    if (section) {
-      section.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  };
+  // Slice for progressive loading
+  const visibleVideos = useMemo(() => {
+    return filteredVideos.slice(0, visibleCount);
+  }, [filteredVideos, visibleCount]);
 
   const handleHashtagClick = (tag: string) => {
     if (selectedHashtag === tag) {
@@ -87,6 +82,20 @@ export function VideoGrid({ videos }: VideoGridProps) {
       setSelectedHashtag(tag);
     }
   };
+
+  const handleLoadMore = () => {
+    setVisibleCount((prev) => prev + LOAD_MORE_STEP);
+  };
+
+  const handleShowAll = () => {
+    setVisibleCount(filteredVideos.length);
+  };
+
+  const hasMore = visibleCount < filteredVideos.length;
+  const progressPercent = Math.min(
+    100,
+    Math.round((visibleVideos.length / (filteredVideos.length || 1)) * 100)
+  );
 
   return (
     <>
@@ -112,13 +121,13 @@ export function VideoGrid({ videos }: VideoGridProps) {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Buscar por título, punto o hashtag (ej: #gato, girasol, venom, #bebe)..."
+            placeholder="Buscar por título, punto o hashtag (ej: #gato, girasol, venom, #bebe, #puntos)..."
             className="w-full bg-neutral-900/90 border border-neutral-800 rounded-2xl pl-11 pr-10 py-3.5 text-xs sm:text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:border-amber-500/50 shadow-inner"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-neutral-400 hover:text-white"
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-neutral-400 hover:text-white cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -167,7 +176,7 @@ export function VideoGrid({ videos }: VideoGridProps) {
           {selectedHashtag && (
             <button
               onClick={() => setSelectedHashtag(null)}
-              className="px-2.5 py-1 rounded-lg text-xs font-bold text-neutral-400 hover:text-rose-400 bg-neutral-900 border border-neutral-800 flex items-center gap-1"
+              className="px-2.5 py-1 rounded-lg text-xs font-bold text-neutral-400 hover:text-rose-400 bg-neutral-900 border border-neutral-800 flex items-center gap-1 cursor-pointer"
               title="Limpiar filtro de hashtag"
             >
               <X className="w-3 h-3" />
@@ -177,15 +186,10 @@ export function VideoGrid({ videos }: VideoGridProps) {
         </div>
 
         {/* Results Counter Bar */}
-        <div className="flex items-center justify-between border-b border-neutral-800/60 pb-3 mb-8 text-xs text-neutral-400">
+        <div className="flex flex-col sm:flex-row items-center justify-between border-b border-neutral-800/60 pb-3 mb-8 gap-2 text-xs text-neutral-400">
           <span>
-            Mostrando{" "}
-            <strong className="text-white">
-              {filteredVideos.length === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1}
-              {" - "}
-              {Math.min(currentPage * ITEMS_PER_PAGE, filteredVideos.length)}
-            </strong>{" "}
-            de <strong className="text-white">{filteredVideos.length}</strong> tutoriales
+            Mostrando <strong className="text-white">{visibleVideos.length}</strong> de{" "}
+            <strong className="text-white">{filteredVideos.length}</strong> tutoriales disponibles
           </span>
 
           {(selectedCategory !== "all" || selectedHashtag || searchQuery) && (
@@ -195,7 +199,7 @@ export function VideoGrid({ videos }: VideoGridProps) {
                 setSelectedHashtag(null);
                 setSearchQuery("");
               }}
-              className="text-amber-400 hover:underline font-semibold"
+              className="text-amber-400 hover:underline font-semibold cursor-pointer"
             >
               Restablecer todos los filtros
             </button>
@@ -220,14 +224,14 @@ export function VideoGrid({ videos }: VideoGridProps) {
                 setSelectedHashtag(null);
                 setSearchQuery("");
               }}
-              className="px-5 py-2.5 rounded-xl bg-amber-400 text-neutral-950 font-bold text-xs"
+              className="px-5 py-2.5 rounded-xl bg-amber-400 text-neutral-950 font-bold text-xs cursor-pointer"
             >
               Ver todos los videos
             </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {paginatedVideos.map((video) => (
+            {visibleVideos.map((video) => (
               <div
                 key={video.id}
                 onClick={() => setActiveModalVideo(video)}
@@ -239,6 +243,7 @@ export function VideoGrid({ videos }: VideoGridProps) {
                   <img
                     src={video.thumbnailUrl}
                     alt={video.title}
+                    loading="lazy"
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
 
@@ -294,45 +299,39 @@ export function VideoGrid({ videos }: VideoGridProps) {
           </div>
         )}
 
-        {/* Pagination Navigation Controls */}
-        {totalPages > 1 && (
-          <div className="mt-12 flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-neutral-800/60">
-            <div className="text-xs text-neutral-400">
-              Página <strong className="text-white">{currentPage}</strong> de{" "}
-              <strong className="text-white">{totalPages}</strong>
+        {/* Load More & Progressive Controls */}
+        {hasMore && (
+          <div className="mt-14 max-w-md mx-auto text-center space-y-4">
+            {/* Progress Bar */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between text-[11px] text-neutral-400">
+                <span>Progreso del catálogo</span>
+                <span>{progressPercent}%</span>
+              </div>
+              <div className="w-full h-1.5 bg-neutral-900 rounded-full overflow-hidden border border-neutral-800">
+                <div
+                  className="h-full bg-gradient-to-r from-amber-400 to-rose-500 rounded-full transition-all duration-300"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            {/* Buttons */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
               <button
-                disabled={currentPage === 1}
-                onClick={() => handlePageChange(currentPage - 1)}
-                className="p-2 rounded-xl bg-neutral-900 border border-neutral-800 text-neutral-300 hover:text-white hover:bg-neutral-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                title="Página Anterior"
+                onClick={handleLoadMore}
+                className="w-full sm:w-auto px-7 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-neutral-950 font-bold text-sm shadow-xl shadow-amber-400/20 transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronDown className="w-4 h-4" />
+                <span>Cargar más videos (+12)</span>
               </button>
 
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
-                <button
-                  key={pageNum}
-                  onClick={() => handlePageChange(pageNum)}
-                  className={`w-9 h-9 rounded-xl text-xs font-bold transition-all ${
-                    currentPage === pageNum
-                      ? "bg-amber-400 text-neutral-950 shadow-md shadow-amber-400/20 scale-105"
-                      : "bg-neutral-900 border border-neutral-800 text-neutral-400 hover:text-white hover:bg-neutral-800"
-                  }`}
-                >
-                  {pageNum}
-                </button>
-              ))}
-
               <button
-                disabled={currentPage === totalPages}
-                onClick={() => handlePageChange(currentPage + 1)}
-                className="p-2 rounded-xl bg-neutral-900 border border-neutral-800 text-neutral-300 hover:text-white hover:bg-neutral-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                title="Página Siguiente"
+                onClick={handleShowAll}
+                className="w-full sm:w-auto px-5 py-3 rounded-2xl bg-neutral-900 hover:bg-neutral-800 border border-neutral-700 text-neutral-300 hover:text-white font-semibold text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                <ChevronRight className="w-4 h-4" />
+                <Layers className="w-3.5 h-3.5" />
+                <span>Mostrar todos ({filteredVideos.length})</span>
               </button>
             </div>
           </div>

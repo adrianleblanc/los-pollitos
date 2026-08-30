@@ -40,17 +40,11 @@ export function PublicNavbar() {
 
         {/* Desktop Navigation Links */}
         <nav className="hidden md:flex items-center gap-6 text-sm font-semibold text-neutral-300">
+          <a href="#listas-de-reproduccion" className="hover:text-amber-300 transition-colors">
+            Listas Oficiales 📂
+          </a>
           <a href="#videos" className="hover:text-amber-300 transition-colors">
-            Tutoriales
-          </a>
-          <a href="#mascotas" className="hover:text-amber-300 transition-colors">
-            Mascotas 🐱🐶
-          </a>
-          <a href="#prendas" className="hover:text-amber-300 transition-colors">
-            Prendas & Gorros
-          </a>
-          <a href="#shorts" className="hover:text-amber-300 transition-colors">
-            Shorts & Tips
+            Todos los Videos
           </a>
           <a href="#sobre-nosotros" className="hover:text-amber-300 transition-colors">
             Sobre el Canal

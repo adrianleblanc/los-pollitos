@@ -1,6 +1,7 @@
 import { getPublicChannelData } from "@/services/youtube-public";
 import { PublicNavbar } from "@/components/public/navbar";
 import { PublicHero } from "@/components/public/hero";
+import { PlaylistsSection } from "@/components/public/playlists-section";
 import { VideoGrid } from "@/components/public/video-grid";
 import { AboutSection } from "@/components/public/about-section";
 import { PublicFooter } from "@/components/public/footer";
@@ -21,7 +22,10 @@ export default async function HomePage() {
         {/* Hero Section */}
         <PublicHero channel={channel} featuredVideo={featuredVideo} />
 
-        {/* Video Catalog with Categories, Search, and Modal Player */}
+        {/* Official Playlists Showcase */}
+        <PlaylistsSection />
+
+        {/* Video Catalog with Progressive Load More, Hashtags, Categories, Search, and Modal Player */}
         <VideoGrid videos={videos} />
 
         {/* About the Channel & Passion */}
