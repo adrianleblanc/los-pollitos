@@ -1,0 +1,394 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ----------------------------------------------------
+// AUTH & USERS (Auth.js / NextAuth compatible)
+// ----------------------------------------------------
+
+enum UserRole {
+  SUPERADMIN
+  USER
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  role          UserRole  @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts        Account[]
+  sessions        Session[]
+  workspaces      UserWorkspace[]
+  createdContents Content[]       @relation("ContentAuthor")
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ----------------------------------------------------
+// WORKSPACES & MULTI-TENANCY
+// ----------------------------------------------------
+
+enum WorkspaceRole {
+  OWNER
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+model Workspace {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  logoUrl     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users          UserWorkspace[]
+  socialAccounts SocialAccount[]
+  categories     Category[]
+  media          Media[]
+  contents       Content[]
+
+  @@map("workspaces")
+}
+
+model UserWorkspace {
+  id          String        @id @default(cuid())
+  userId      String
+  workspaceId String
+  role        WorkspaceRole @default(EDITOR)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, workspaceId])
+  @@index([workspaceId])
+  @@index([userId])
+  @@map("user_workspaces")
+}
+
+// ----------------------------------------------------
+// SOCIAL MEDIA CONNECTIONS
+// ----------------------------------------------------
+
+enum SocialPlatform {
+  YOUTUBE
+  FACEBOOK
+  INSTAGRAM
+  TIKTOK
+}
+
+enum TokenStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+  ERROR
+}
+
+model SocialAccount {
+  id                String         @id @default(cuid())
+  workspaceId       String
+  platform          SocialPlatform
+  accountName       String
+  accountUsername   String?
+  accountAvatarUrl  String?
+  externalAccountId String
+
+  // Encrypted tokens & authorization
+  accessToken    String      @db.Text
+  refreshToken   String?     @db.Text
+  tokenExpiresAt DateTime?
+  tokenStatus    TokenStatus @default(ACTIVE)
+  scopes         String[]    @default([])
+
+  // Platform specific cached metadata (e.g. TikTok creator_info, YouTube channel info)
+  platformConfig  Json?
+  configUpdatedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  workspace    Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  publications Publication[]
+
+  @@unique([workspaceId, platform, externalAccountId])
+  @@index([workspaceId])
+  @@index([platform])
+  @@map("social_accounts")
+}
+
+// ----------------------------------------------------
+// CATEGORIES
+// ----------------------------------------------------
+
+model Category {
+  id          String   @id @default(cuid())
+  workspaceId String
+  name        String
+  slug        String
+  description String?
+  color       String?  @default("#3B82F6")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  workspace Workspace         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  contents  ContentCategory[]
+
+  @@unique([workspaceId, slug])
+  @@index([workspaceId])
+  @@map("categories")
+}
+
+// ----------------------------------------------------
+// MEDIA ASSETS (Cloudflare R2)
+// ----------------------------------------------------
+
+enum MediaType {
+  VIDEO
+  IMAGE
+  AUDIO
+  DOCUMENT
+}
+
+model Media {
+  id          String    @id @default(cuid())
+  workspaceId String
+  name        String
+  fileName    String
+  fileSize    BigInt
+  mimeType    String
+  mediaType   MediaType
+  r2Key       String    @unique
+  publicUrl   String
+
+  // Media details
+  width        Int?
+  height       Int?
+  durationSec  Float?
+  aspectRatio  String? // e.g. "16:9", "9:16", "1:1"
+  thumbnailUrl String?
+  metadata     Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  workspace Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  contents  ContentMedia[]
+
+  @@index([workspaceId])
+  @@index([mediaType])
+  @@map("media")
+}
+
+// ----------------------------------------------------
+// CONTENT MANAGEMENT
+// ----------------------------------------------------
+
+enum ContentStatus {
+  DRAFT
+  READY
+  SCHEDULED
+  PUBLISHING
+  PARTIALLY_PUBLISHED
+  PUBLISHED
+  FAILED
+}
+
+enum ContentType {
+  STANDARD_VIDEO
+  SHORT_VIDEO
+  POST_IMAGE
+  CAROUSEL
+  TEXT_ONLY
+}
+
+model Content {
+  id           String        @id @default(cuid())
+  workspaceId  String
+  authorId     String
+  title        String
+  description  String?       @db.Text
+  type         ContentType   @default(STANDARD_VIDEO)
+  status       ContentStatus @default(DRAFT)
+  tags         String[]      @default([])
+  scheduledFor DateTime?
+  publishedAt  DateTime?
+
+  // Platform specific metadata overrides (e.g. YouTube privacy, TikTok AIGC, Instagram share_to_feed)
+  customMetadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  workspace    Workspace         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  author       User              @relation("ContentAuthor", fields: [authorId], references: [id])
+  media        ContentMedia[]
+  categories   ContentCategory[]
+  publications Publication[]
+
+  @@index([workspaceId])
+  @@index([status])
+  @@index([scheduledFor])
+  @@index([authorId])
+  @@map("contents")
+}
+
+enum MediaRole {
+  PRIMARY_VIDEO
+  THUMBNAIL
+  CAROUSEL_ITEM
+  ATTACHMENT
+}
+
+model ContentMedia {
+  id        String    @id @default(cuid())
+  contentId String
+  mediaId   String
+  role      MediaRole @default(PRIMARY_VIDEO)
+  sortOrder Int       @default(0)
+
+  content Content @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  media   Media   @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@unique([contentId, mediaId, role])
+  @@index([contentId])
+  @@index([mediaId])
+  @@map("content_media")
+}
+
+model ContentCategory {
+  contentId  String
+  categoryId String
+
+  content  Content  @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([contentId, categoryId])
+  @@index([contentId])
+  @@index([categoryId])
+  @@map("content_categories")
+}
+
+// ----------------------------------------------------
+// PUBLICATIONS & ORCHESTRATION
+// ----------------------------------------------------
+
+enum PublicationStatus {
+  PENDING
+  IN_PROGRESS
+  PUBLISHED
+  FAILED
+  SCHEDULED
+  CANCELED
+}
+
+model Publication {
+  id              String            @id @default(cuid())
+  contentId       String
+  socialAccountId String
+  platform        SocialPlatform
+  status          PublicationStatus @default(PENDING)
+
+  // Remote platform IDs & references
+  externalPostId  String?
+  externalUrl     String?
+  externalStatus  String?
+  publishId       String? // Specific for TikTok async flows
+  webhookReceived Boolean @default(false)
+
+  // Timing & execution
+  scheduledFor DateTime?
+  publishedAt  DateTime?
+  errorMessage String?   @db.Text
+  metrics      Json? // Views, likes, comments snapshot
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  content       Content              @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  socialAccount SocialAccount        @relation(fields: [socialAccountId], references: [id], onDelete: Cascade)
+  attempts      PublicationAttempt[]
+
+  @@index([contentId])
+  @@index([socialAccountId])
+  @@index([status])
+  @@index([scheduledFor])
+  @@map("publications")
+}
+
+model PublicationAttempt {
+  id              String            @id @default(cuid())
+  publicationId   String
+  attemptNumber   Int               @default(1)
+  status          PublicationStatus
+  requestPayload  Json?
+  responsePayload Json?
+  errorMessage    String?           @db.Text
+  executionTimeMs Int?
+  createdAt       DateTime          @default(now())
+
+  publication Publication @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+
+  @@index([publicationId])
+  @@map("publication_attempts")
+}
