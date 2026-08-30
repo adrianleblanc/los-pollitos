@@ -27,92 +27,127 @@ export const FALLBACK_CHANNEL: ChannelInfo = {
     "¡Bienvenidos a Los Pollitos Tejen! 🧶✨ Tutoriales de tejido a crochet con amor, proyectos paso a paso para todos los niveles y las ideas más lindas para crear con tus manos.",
   subscriberCount: "9.6K",
   videoCount: "156",
-  avatarUrl:
-    "https://images.unsplash.com/photo-1606902965551-dce093cda6e7?w=400&auto=format&fit=crop&q=80",
-  bannerUrl:
-    "https://images.unsplash.com/photo-1584992236310-6edddc08acff?w=1600&auto=format&fit=crop&q=80",
+  avatarUrl: "https://i.ytimg.com/vi/bd25PBimhCM/hqdefault.jpg",
+  bannerUrl: "https://i.ytimg.com/vi/zkJvtnHP9AQ/hqdefault.jpg",
 };
 
 export const FALLBACK_VIDEOS: YouTubeVideo[] = [
   {
-    id: "demo_1",
-    title: "🐱 Traje a Crochet para Gato Fácil y Rápido | Paso a Paso",
+    id: "bd25PBimhCM",
+    title: "🐶🐱 Traje a Crochet para Perros y Gatos #9 | Sweaters | Chaleco",
     description:
-      "Aprende a tejer un hermoso suéter / traje a crochet para tu gatito. Explicado punto por punto para principiantes.",
-    thumbnailUrl:
-      "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=800&auto=format&fit=crop&q=80",
+      "Aprende a tejer un hermoso suéter / traje a crochet para tu mascota explicado punto por punto con medidas exactas.",
+    thumbnailUrl: "https://i.ytimg.com/vi/bd25PBimhCM/hqdefault.jpg",
     publishedAt: "2026-08-15T14:00:00Z",
-    duration: "24:15",
+    duration: "43:47",
     viewCount: "18.4K",
     category: "mascotas",
   },
   {
-    id: "demo_2",
+    id: "zkJvtnHP9AQ",
     title: "🕷️ Gorro Venom a Crochet | Tutorial Paso a Paso",
     description:
-      "Tutorial detallado para tejer el famoso gorro inspirado en Venom con técnica de crochet y detalles en relieve.",
-    thumbnailUrl:
-      "https://images.unsplash.com/photo-1576871337632-b9aef4c17ab9?w=800&auto=format&fit=crop&q=80",
+      "Tutorial completo para tejer el gorro inspirado en Venom a crochet con detalles en relieve y ojos bordados.",
+    thumbnailUrl: "https://i.ytimg.com/vi/zkJvtnHP9AQ/hqdefault.jpg",
     publishedAt: "2026-08-10T18:30:00Z",
-    duration: "32:40",
+    duration: "44:27",
     viewCount: "45.2K",
     category: "prendas",
   },
   {
-    id: "demo_3",
-    title: "🐶 Vestido / Suéter Rosa para Perritos a Crochet",
+    id: "sBrf3wxRU4M",
+    title: "🐶🐱 Traje a Crochet para Perros y Gatos #8 | Sin Mangas",
     description:
-      "Viste a tu mascota con este hermoso diseño tejido en punto fantasía con lazos decorativos.",
-    thumbnailUrl:
-      "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=800&auto=format&fit=crop&q=80",
+      "Diseño fresco y cómodo sin mangas para perritos y gatitos. Patrón fácil ideal para principiantes.",
+    thumbnailUrl: "https://i.ytimg.com/vi/sBrf3wxRU4M/hqdefault.jpg",
     publishedAt: "2026-08-01T16:00:00Z",
-    duration: "28:10",
+    duration: "31:05",
     viewCount: "29.8K",
     category: "mascotas",
   },
   {
-    id: "demo_4",
-    title: "🌸 Flores a Crochet para Aplicaciones y Decoración",
+    id: "0A0otH_G1yY",
+    title: "🌻 Granny Square Girasol a Crochet #9 - Paso a Paso",
     description:
-      "Aprende a tejer flores fáciles y coloridas en minutos. Ideales para mantas, bolsos y accesorios.",
-    thumbnailUrl:
-      "https://images.unsplash.com/photo-1584992236310-6edddc08acff?w=800&auto=format&fit=crop&q=80",
+      "Aprende a tejer un hermoso motivo de girasol en cuadro de la abuela (granny square) para mantas y bolsos.",
+    thumbnailUrl: "https://i.ytimg.com/vi/0A0otH_G1yY/hqdefault.jpg",
     publishedAt: "2026-07-25T12:00:00Z",
-    duration: "15:20",
-    viewCount: "12.6K",
+    duration: "25:16",
+    viewCount: "32.6K",
     category: "tutorial",
   },
   {
-    id: "demo_5",
-    title: "🧣 Bufanda Infinita en Punto Relieve a Crochet",
+    id: "Yu-XYOUPSy0",
+    title: "🌸 Granny Square a Crochet #12 - Flor en Relieve",
     description:
-      "Un proyecto abrigador y súper elegante para días fríos. Patrón fácil de seguir.",
-    thumbnailUrl:
-      "https://images.unsplash.com/photo-1607344645866-009c320c5ab8?w=800&auto=format&fit=crop&q=80",
-    publishedAt: "2026-07-18T17:00:00Z",
-    duration: "22:50",
+      "Tutorial paso a paso de cuadro granny con flor central en relieve para cojines y mantas tejidas.",
+    thumbnailUrl: "https://i.ytimg.com/vi/Yu-XYOUPSy0/hqdefault.jpg",
+    publishedAt: "2026-07-20T15:00:00Z",
+    duration: "20:02",
+    viewCount: "21.3K",
+    category: "tutorial",
+  },
+  {
+    id: "TfV5IsBMxIw",
+    title: "🐶🐱 Hamaca a Crochet para Gatos y Perros | Fácil y Resistente",
+    description:
+      "Crea una cama / hamaca colgante tejida súper resistente y cómoda para el descanso de tus mascotas.",
+    thumbnailUrl: "https://i.ytimg.com/vi/TfV5IsBMxIw/hqdefault.jpg",
+    publishedAt: "2026-07-15T17:30:00Z",
+    duration: "17:23",
+    viewCount: "27.5K",
+    category: "mascotas",
+  },
+  {
+    id: "yKDxDRIFoUs",
+    title: "🧣 Poncho Tejido a Crochet para Todas las Tallas",
+    description:
+      "Prenda elegante y abrigadora tejida en punto fantasía con terminaciones en flecos.",
+    thumbnailUrl: "https://i.ytimg.com/vi/yKDxDRIFoUs/hqdefault.jpg",
+    publishedAt: "2026-07-10T14:00:00Z",
+    duration: "23:22",
+    viewCount: "58.7K",
+    category: "prendas",
+  },
+  {
+    id: "akEXHi2Jb74",
+    title: "👶 Gorro de Bebé a Crochet con Orejitas",
+    description:
+      "Tierno gorrito para recién nacido y bebé tejido con lana suave hipoalergénica.",
+    thumbnailUrl: "https://i.ytimg.com/vi/akEXHi2Jb74/hqdefault.jpg",
+    publishedAt: "2026-07-05T11:00:00Z",
+    duration: "30:52",
     viewCount: "34.1K",
     category: "prendas",
   },
   {
-    id: "demo_6",
-    title: "🐥 Pollito Amigurumi Tierno | Patrón Gratis para Principiantes",
+    id: "IxKaSEqFro0",
+    title: "🎀 Moño Coquette a Crochet Ideal para Principiantes",
     description:
-      "El pollito insignia de nuestro canal tejido en técnica amigurumi. Ideal para llaveros o regalos.",
-    thumbnailUrl:
-      "https://images.unsplash.com/photo-1563245372-f21724e3856d?w=800&auto=format&fit=crop&q=80",
-    publishedAt: "2026-07-10T15:30:00Z",
-    duration: "19:45",
-    viewCount: "58.7K",
+      "Aprende a tejer un hermoso lazo / moño estilo coquette para el cabello o aplicaciones en prendas.",
+    thumbnailUrl: "https://i.ytimg.com/vi/IxKaSEqFro0/hqdefault.jpg",
+    publishedAt: "2026-06-28T16:20:00Z",
+    duration: "12:42",
+    viewCount: "19.8K",
     category: "tutorial",
   },
   {
-    id: "demo_7",
-    title: "✨ Tip Rápido: Cómo unir hebras de lana sin nudos visibles #Shorts",
+    id: "-b8V-szqI-g",
+    title: "🍼 Saco de Dormir para Bebé a Crochet",
     description:
-      "Un truco esencial que cambiará la prolijidad de tus tejidos a crochet.",
-    thumbnailUrl:
-      "https://images.unsplash.com/photo-1584992236310-6edddc08acff?w=400&auto=format&fit=crop&q=80",
+      "Proyecto completo paso a paso para mantener calentito a tu bebé con botones de madera decorativos.",
+    thumbnailUrl: "https://i.ytimg.com/vi/-b8V-szqI-g/hqdefault.jpg",
+    publishedAt: "2026-06-20T18:00:00Z",
+    duration: "24:01",
+    viewCount: "42.0K",
+    category: "prendas",
+  },
+  {
+    id: "eYyMUMPS2FE",
+    title: "✨ Cómo tejer un cordón a crochet paso a paso #Shorts",
+    description:
+      "Técnica rápida para cordones resistentes de bolsas, asas y lazos.",
+    thumbnailUrl: "https://i.ytimg.com/vi/eYyMUMPS2FE/hqdefault.jpg",
     publishedAt: "2026-08-20T19:00:00Z",
     duration: "0:58",
     viewCount: "92.4K",
@@ -120,12 +155,11 @@ export const FALLBACK_VIDEOS: YouTubeVideo[] = [
     isShort: true,
   },
   {
-    id: "demo_8",
-    title: "🧶 Cómo calcular la cantidad de lana para tu proyecto #Shorts",
+    id: "MeTgkesaWwU",
+    title: "🧶 Colet / Scrunchie a Crochet para el Cabello #Shorts",
     description:
-      "Nunca más te quedes a mitad de camino en tus prendas de crochet.",
-    thumbnailUrl:
-      "https://images.unsplash.com/photo-1606902965551-dce093cda6e7?w=400&auto=format&fit=crop&q=80",
+      "Crea coleteros elásticos coloridos con restos de lana en menos de 10 minutos.",
+    thumbnailUrl: "https://i.ytimg.com/vi/MeTgkesaWwU/hqdefault.jpg",
     publishedAt: "2026-08-18T20:00:00Z",
     duration: "0:45",
     viewCount: "67.1K",
@@ -209,7 +243,7 @@ export async function getPublicChannelData(): Promise<{
             lower.includes("bufanda")
           )
             category = "prendas";
-          else if (lower.includes("tutorial") || lower.includes("paso a paso"))
+          else if (lower.includes("tutorial") || lower.includes("paso a paso") || lower.includes("granny"))
             category = "tutorial";
 
           return {
@@ -219,7 +253,7 @@ export async function getPublicChannelData(): Promise<{
             thumbnailUrl:
               v.snippet.thumbnails?.maxres?.url ||
               v.snippet.thumbnails?.high?.url ||
-              v.snippet.thumbnails?.medium?.url,
+              `https://i.ytimg.com/vi/${v.snippet.resourceId.videoId}/hqdefault.jpg`,
             publishedAt: v.snippet.publishedAt,
             category,
             isShort,
