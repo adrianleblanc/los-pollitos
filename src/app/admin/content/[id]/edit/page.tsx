@@ -28,7 +28,7 @@ export default async function EditContentPage({
     if (content) {
       serializedContent = {
         ...content,
-        media: content.media.map((cm) => ({
+        media: content.media.map((cm: any) => ({
           ...cm,
           media: {
             ...cm.media,

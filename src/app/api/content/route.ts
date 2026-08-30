@@ -58,13 +58,13 @@ export async function GET(req: NextRequest) {
         orderBy: { updatedAt: "desc" },
       });
 
-      const serializedContents = contents.map((c) => ({
+      const serializedContents = contents.map((c: any) => ({
         ...c,
-        media: c.media.map((cm) => ({
+        media: c.media.map((cm: any) => ({
           ...cm,
           media: {
             ...cm.media,
-            fileSize: cm.media.fileSize.toString(),
+            fileSize: cm.media.fileSize ? cm.media.fileSize.toString() : "0",
           },
         })),
       }));
@@ -124,7 +124,7 @@ export async function POST(req: NextRequest) {
           scheduledFor: data.scheduledFor ? new Date(data.scheduledFor) : null,
           customMetadata: data.customMetadata ?? undefined,
           media: {
-            create: data.mediaIds.map((m) => ({
+            create: data.mediaIds.map((m: any) => ({
               mediaId: m.mediaId,
               role: m.role,
               sortOrder: m.sortOrder,
@@ -140,11 +140,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         content: {
           ...newContent,
-          media: newContent.media.map((cm) => ({
+          media: newContent.media.map((cm: any) => ({
             ...cm,
             media: {
               ...cm.media,
-              fileSize: cm.media.fileSize.toString(),
+              fileSize: cm.media.fileSize ? cm.media.fileSize.toString() : "0",
             },
           })),
         },

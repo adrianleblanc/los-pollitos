@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
         orderBy: { createdAt: "desc" },
       });
 
-      const serialized = mediaList.map((m) => ({
+      const serialized = mediaList.map((m: any) => ({
         ...m,
         fileSize: m.fileSize.toString(),
       }));

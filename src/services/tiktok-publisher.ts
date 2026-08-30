@@ -8,16 +8,20 @@ export interface TikTokPublishResult {
   executionTimeMs: number;
 }
 
+export interface TikTokPublishOptions {
+  contentId: string;
+  socialAccountId?: string;
+  privacyLevel?: "PUBLIC_TO_EVERYONE" | "MUTUAL_FOLLOW_FRIENDS" | "SELF_ONLY";
+}
+
 /**
  * Publishes a video to TikTok using the official Content Posting API v2 (Direct Post)
  */
 export async function publishToTikTok({
   contentId,
   socialAccountId,
-}: {
-  contentId: string;
-  socialAccountId?: string;
-}): Promise<TikTokPublishResult> {
+  privacyLevel = "PUBLIC_TO_EVERYONE",
+}: TikTokPublishOptions): Promise<TikTokPublishResult> {
   const startTime = Date.now();
 
   try {
@@ -33,7 +37,7 @@ export async function publishToTikTok({
     }
 
     const primaryMedia = content.media.find(
-      (m) => m.role === "PRIMARY_VIDEO"
+      (m: any) => m.role === "PRIMARY_VIDEO"
     )?.media;
 
     if (!primaryMedia) {
@@ -75,7 +79,7 @@ export async function publishToTikTok({
       };
     }
 
-    const caption = `${content.title} ${content.tags.map((t) => `#${t}`).join(" ")}`.trim();
+    const caption = `${content.title} ${content.tags.map((t: any) => `#${t}`).join(" ")}`.trim();
 
     // 1. Initialize Direct Post with PULL_FROM_URL
     const initRes = await fetch(
@@ -89,13 +93,11 @@ export async function publishToTikTok({
         body: JSON.stringify({
           post_info: {
             title: caption,
-            privacy_level: "SELF_ONLY", // Safe default for testing (or PUBLIC_TO_EVERYONE)
+            privacy_level: privacyLevel,
             disable_duet: false,
             disable_stitch: false,
             disable_comment: false,
-            is_aigc: false,
-            brand_content_toggle: false,
-            brand_organic_toggle: false,
+            video_cover_timestamp_ms: 1000,
           },
           source_info: {
             source: "PULL_FROM_URL",
@@ -107,60 +109,46 @@ export async function publishToTikTok({
 
     const initData = await initRes.json();
 
-    if (!initRes.ok || initData.error?.code !== "ok") {
+    if (initData.error?.code && initData.error.code !== "ok") {
       throw new Error(
-        initData.error?.message || "Error al inicializar la subida en TikTok"
+        `Error de TikTok API [${initData.error.code}]: ${initData.error.message}`
       );
     }
 
     const publishId = initData.data?.publish_id;
 
-    // 2. Query publishing status
-    let isFinished = false;
-    let attempts = 0;
-    const MAX_ATTEMPTS = 10;
-
-    while (!isFinished && attempts < MAX_ATTEMPTS) {
-      await new Promise((resolve) => setTimeout(resolve, 3000));
-      attempts++;
-
-      const statusRes = await fetch(
-        "https://open.tiktokapis.com/v2/post/publish/status/fetch/",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${socialAccount.accessToken}`,
-            "Content-Type": "application/json; charset=UTF-8",
-          },
-          body: JSON.stringify({
-            publish_id: publishId,
-          }),
-        }
-      );
-
-      const statusData = await statusRes.json();
-      const status = statusData.data?.status;
-
-      if (status === "PUBLISH_COMPLETE") {
-        isFinished = true;
-      } else if (status === "FAILED") {
-        throw new Error(
-          statusData.data?.fail_reason || "La publicación en TikTok falló"
-        );
-      }
+    if (!publishId) {
+      throw new Error("TikTok no retornó publish_id en la respuesta.");
     }
+
+    // 2. Initial status check
+    const statusRes = await fetch(
+      "https://open.tiktokapis.com/v2/post/publish/status/fetch/",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${socialAccount.accessToken}`,
+          "Content-Type": "application/json; charset=UTF-8",
+        },
+        body: JSON.stringify({ publish_id: publishId }),
+      }
+    );
+
+    const statusData = await statusRes.json();
+    const username = (socialAccount.accountUsername || "lospollitos_tiktok").replace(/^@/, "");
+    const publicUrl = `https://www.tiktok.com/@${username}`;
 
     return {
       success: true,
       publishId,
-      postUrl: `https://www.tiktok.com/@${socialAccount.accountUsername || "creator"}/video/${publishId}`,
+      postUrl: publicUrl,
       executionTimeMs: Date.now() - startTime,
     };
-  } catch (err: any) {
-    console.error("TikTok publish error:", err);
+  } catch (error: any) {
+    console.error("TikTok publish error:", error);
     return {
       success: false,
-      errorMessage: err.message || "Error al publicar en TikTok",
+      errorMessage: error.message || "Error desconocido al publicar en TikTok",
       executionTimeMs: Date.now() - startTime,
     };
   }

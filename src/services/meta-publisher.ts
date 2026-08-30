@@ -1,21 +1,21 @@
 import { prisma } from "@/lib/prisma";
-import { META_GRAPH_VERSION } from "./meta-auth";
 
-const GRAPH_URL = `https://graph.facebook.com/${META_GRAPH_VERSION}`;
+const GRAPH_API_VERSION = "v26.0";
+const GRAPH_URL = `https://graph.facebook.com/${GRAPH_API_VERSION}`;
 
 export interface MetaPublishResult {
   platform: "FACEBOOK" | "INSTAGRAM";
   success: boolean;
   postId?: string;
   postUrl?: string;
+  mediaId?: string;
   errorMessage?: string;
   executionTimeMs: number;
 }
 
-// ----------------------------------------------------
-// FACEBOOK PAGE PUBLISHER
-// ----------------------------------------------------
-
+/**
+ * Publishes content directly to a Facebook Page (Post, Video, or Photo)
+ */
 export async function publishToFacebookPage({
   contentId,
   socialAccountId,
@@ -33,13 +33,19 @@ export async function publishToFacebookPage({
       },
     });
 
-    if (!content) throw new Error("Contenido no encontrado");
+    if (!content) {
+      throw new Error("Contenido no encontrado");
+    }
 
-    // Find active Facebook SocialAccount
+    // Find active Facebook Page SocialAccount
     const socialAccount = socialAccountId
       ? await prisma.socialAccount.findUnique({ where: { id: socialAccountId } })
       : await prisma.socialAccount.findFirst({
-          where: { workspaceId: content.workspaceId, platform: "FACEBOOK", tokenStatus: "ACTIVE" },
+          where: {
+            workspaceId: content.workspaceId,
+            platform: "FACEBOOK",
+            tokenStatus: "ACTIVE",
+          },
         });
 
     // Fallback simulation mode
@@ -56,8 +62,8 @@ export async function publishToFacebookPage({
 
     const pageId = socialAccount.externalAccountId;
     const pageToken = socialAccount.accessToken;
-    const primaryMedia = content.media.find((m) => m.role === "PRIMARY_VIDEO")?.media;
-    const caption = `${content.title}\n\n${content.description || ""}\n\n${content.tags.map((t) => `#${t}`).join(" ")}`.trim();
+    const primaryMedia = content.media.find((m: any) => m.role === "PRIMARY_VIDEO")?.media;
+    const caption = `${content.title}\n\n${content.description || ""}\n\n${content.tags.map((t: any) => `#${t}`).join(" ")}`.trim();
 
     let endpoint = "";
     let bodyData: any = {};
@@ -80,7 +86,7 @@ export async function publishToFacebookPage({
         access_token: pageToken,
       };
     } else {
-      // Text-only feed post
+      // Text-only post
       endpoint = `${GRAPH_URL}/${pageId}/feed`;
       bodyData = {
         message: caption,
@@ -95,33 +101,36 @@ export async function publishToFacebookPage({
     });
 
     const data = await res.json();
-    if (!res.ok || data.error) {
-      throw new Error(data.error?.message || "Error al publicar en Facebook");
+
+    if (data.error) {
+      throw new Error(`Meta Graph API Error [${data.error.code}]: ${data.error.message}`);
     }
 
     const postId = data.id || data.post_id;
+    const postUrl = `https://facebook.com/${postId}`;
+
     return {
       platform: "FACEBOOK",
       success: true,
       postId,
-      postUrl: `https://facebook.com/${postId}`,
+      postUrl,
       executionTimeMs: Date.now() - startTime,
     };
-  } catch (err: any) {
-    console.error("Facebook publishing error:", err);
+  } catch (error: any) {
+    console.error("Facebook publish error:", error);
     return {
       platform: "FACEBOOK",
       success: false,
-      errorMessage: err.message || "Error en la publicación de Facebook",
+      errorMessage: error.message || "Error desconocido al publicar en Facebook",
       executionTimeMs: Date.now() - startTime,
     };
   }
 }
 
-// ----------------------------------------------------
-// INSTAGRAM GRAPH API PUBLISHER (2-Step Container Model)
-// ----------------------------------------------------
-
+/**
+ * Publishes content to Instagram Business/Creator via Content Publishing API
+ * Flow: 1. Create Media Container -> 2. Poll Status until FINISHED -> 3. Publish Container
+ */
 export async function publishToInstagram({
   contentId,
   socialAccountId,
@@ -139,13 +148,19 @@ export async function publishToInstagram({
       },
     });
 
-    if (!content) throw new Error("Contenido no encontrado");
+    if (!content) {
+      throw new Error("Contenido no encontrado");
+    }
 
     // Find active Instagram SocialAccount
     const socialAccount = socialAccountId
       ? await prisma.socialAccount.findUnique({ where: { id: socialAccountId } })
       : await prisma.socialAccount.findFirst({
-          where: { workspaceId: content.workspaceId, platform: "INSTAGRAM", tokenStatus: "ACTIVE" },
+          where: {
+            workspaceId: content.workspaceId,
+            platform: "INSTAGRAM",
+            tokenStatus: "ACTIVE",
+          },
         });
 
     // Fallback simulation mode
@@ -162,9 +177,9 @@ export async function publishToInstagram({
 
     const igUserId = socialAccount.externalAccountId;
     const pageToken = socialAccount.accessToken;
-    const primaryMedia = content.media.find((m) => m.role === "PRIMARY_VIDEO")?.media;
-    const thumbnailMedia = content.media.find((m) => m.role === "THUMBNAIL")?.media;
-    const caption = `${content.title}\n\n${content.description || ""}\n\n${content.tags.map((t) => `#${t}`).join(" ")}`.trim();
+    const primaryMedia = content.media.find((m: any) => m.role === "PRIMARY_VIDEO")?.media;
+    const thumbnailMedia = content.media.find((m: any) => m.role === "THUMBNAIL")?.media;
+    const caption = `${content.title}\n\n${content.description || ""}\n\n${content.tags.map((t: any) => `#${t}`).join(" ")}`.trim();
 
     if (!primaryMedia) {
       throw new Error("Instagram requiere al menos una imagen o video para publicar.");
@@ -179,9 +194,8 @@ export async function publishToInstagram({
       );
     }
 
-    // --------------------------------------------------
-    // STEP 1: CREATE MEDIA CONTAINER
-    // --------------------------------------------------
+    // Step 1: Create Container
+    const containerUrl = `${GRAPH_URL}/${igUserId}/media`;
     const containerParams: any = {
       caption,
       access_token: pageToken,
@@ -190,83 +204,94 @@ export async function publishToInstagram({
     if (isVideo) {
       containerParams.media_type = "REELS";
       containerParams.video_url = primaryMedia.publicUrl;
-      containerParams.share_to_feed = true;
-      if (thumbnailMedia?.publicUrl) {
+      if (thumbnailMedia) {
         containerParams.cover_url = thumbnailMedia.publicUrl;
       }
     } else {
       containerParams.image_url = primaryMedia.publicUrl;
     }
 
-    const createContainerRes = await fetch(`${GRAPH_URL}/${igUserId}/media`, {
+    const containerRes = await fetch(containerUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(containerParams),
     });
 
-    const createData = await createContainerRes.json();
-    if (!createContainerRes.ok || createData.error) {
-      throw new Error(createData.error?.message || "Error al crear contenedor en Instagram");
+    const containerData = await containerRes.json();
+
+    if (containerData.error) {
+      throw new Error(
+        `Error creando contenedor de Instagram [${containerData.error.code}]: ${containerData.error.message}`
+      );
     }
 
-    const containerId = createData.id;
+    const creationId = containerData.id;
 
-    // --------------------------------------------------
-    // STEP 1.5: WAIT / POLL CONTAINER STATUS (For Videos)
-    // --------------------------------------------------
+    // Step 2: Poll container status (videos require processing time)
     if (isVideo) {
       let isReady = false;
       let attempts = 0;
-      const MAX_ATTEMPTS = 15;
+      const maxAttempts = 15; // 30 seconds max
 
-      while (!isReady && attempts < MAX_ATTEMPTS) {
-        await new Promise((resolve) => setTimeout(resolve, 3000)); // wait 3s
+      while (!isReady && attempts < maxAttempts) {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
         attempts++;
 
         const statusRes = await fetch(
-          `${GRAPH_URL}/${containerId}?fields=status_code,status&access_token=${pageToken}`
+          `${GRAPH_URL}/${creationId}?fields=status_code,status&access_token=${pageToken}`
         );
         const statusData = await statusRes.json();
 
         if (statusData.status_code === "FINISHED") {
           isReady = true;
-        } else if (statusData.status_code === "ERROR" || statusData.status_code === "EXPIRED") {
-          throw new Error("El procesamiento del video en Instagram falló.");
+        } else if (statusData.status_code === "ERROR") {
+          throw new Error("Instagram falló al procesar el archivo de video en el contenedor.");
+        } else if (statusData.status_code === "EXPIRED") {
+          throw new Error("El contenedor de Instagram expiró antes de publicarse.");
         }
+      }
+
+      if (!isReady) {
+        throw new Error("Tiempo de espera agotado esperando el procesamiento de video en Instagram.");
       }
     }
 
-    // --------------------------------------------------
-    // STEP 2: PUBLISH CONTAINER
-    // --------------------------------------------------
-    const publishRes = await fetch(`${GRAPH_URL}/${igUserId}/media_publish`, {
+    // Step 3: Publish Container
+    const publishUrl = `${GRAPH_URL}/${igUserId}/media_publish`;
+    const publishRes = await fetch(publishUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        creation_id: containerId,
+        creation_id: creationId,
         access_token: pageToken,
       }),
     });
 
     const publishData = await publishRes.json();
-    if (!publishRes.ok || publishData.error) {
-      throw new Error(publishData.error?.message || "Error al publicar contenedor en Instagram");
+
+    if (publishData.error) {
+      throw new Error(
+        `Error publicando en Instagram [${publishData.error.code}]: ${publishData.error.message}`
+      );
     }
 
     const mediaId = publishData.id;
+    const postUrl = `https://instagram.com/p/${mediaId}`;
+
     return {
       platform: "INSTAGRAM",
       success: true,
       postId: mediaId,
-      postUrl: `https://instagram.com/p/${mediaId}`,
+      mediaId,
+      postUrl,
       executionTimeMs: Date.now() - startTime,
     };
-  } catch (err: any) {
-    console.error("Instagram publishing error:", err);
+  } catch (error: any) {
+    console.error("Instagram publish error:", error);
     return {
       platform: "INSTAGRAM",
       success: false,
-      errorMessage: err.message || "Error en la publicación de Instagram",
+      errorMessage: error.message || "Error desconocido al publicar en Instagram",
       executionTimeMs: Date.now() - startTime,
     };
   }

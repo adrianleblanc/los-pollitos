@@ -59,7 +59,7 @@ export async function publishVideoToYouTube(
     }
 
     const primaryMediaItem = content.media.find(
-      (m) => m.role === "PRIMARY_VIDEO"
+      (m: any) => m.role === "PRIMARY_VIDEO"
     )?.media;
 
     if (!primaryMediaItem) {
@@ -67,7 +67,7 @@ export async function publishVideoToYouTube(
     }
 
     const thumbnailMediaItem = content.media.find(
-      (m) => m.role === "THUMBNAIL"
+      (m: any) => m.role === "THUMBNAIL"
     )?.media;
 
     // 2. Find Active YouTube Social Account
@@ -87,7 +87,7 @@ export async function publishVideoToYouTube(
     }
 
     // 3. Fallback / Test Simulation Mode if no Google OAuth account is connected yet
-    if (!socialAccount || !socialAccount.accessToken) {
+    if (!socialAccount || !socialAccount.accessToken || socialAccount.accessToken === "mock_token") {
       console.warn("⚠️ No YouTube OAuth account connected. Simulating publication for testing...");
       
       const mockVideoId = `test_${Math.random().toString(36).substring(2, 11)}`;
@@ -119,26 +119,27 @@ export async function publishVideoToYouTube(
 
     const selfDeclaredMadeForKids =
       options.selfDeclaredMadeForKids ??
-      customMeta?.youtube?.selfDeclaredMadeForKids ??
+      customMeta?.youtube?.madeForKids ??
       false;
 
-    // 6. Upload Video via Resumable Upload (videos.insert)
+    // 6. Resumable Upload to YouTube Data API v3 (videos.insert)
     const insertRes = await youtube.videos.insert({
       part: ["snippet", "status"],
-      notifySubscribers: options.notifySubscribers ?? false,
+      notifySubscribers: options.notifySubscribers ?? true,
       requestBody: {
         snippet: {
           title: content.title,
           description: content.description || "",
-          tags: content.tags.length > 0 ? content.tags : ["lospollitos", "tutorial"],
-          categoryId: "22", // People & Blogs / Howto
-          defaultLanguage: "es",
-          defaultAudioLanguage: "es",
+          tags: content.tags,
+          categoryId: customMeta?.youtube?.categoryId || "26", // Howto & Style default
         },
         status: {
           privacyStatus,
           selfDeclaredMadeForKids,
-          embeddable: true,
+          publishAt:
+            content.status === "SCHEDULED" && content.scheduledFor
+              ? content.scheduledFor.toISOString()
+              : undefined,
         },
       },
       media: {
@@ -148,10 +149,10 @@ export async function publishVideoToYouTube(
 
     const videoId = insertRes.data.id;
     if (!videoId) {
-      throw new Error("YouTube no retornó un ID de video válido tras la subida.");
+      throw new Error("YouTube no retornó el ID del video tras la subida.");
     }
 
-    // 7. Upload Custom Thumbnail if provided
+    // 7. Upload Custom Thumbnail if provided (thumbnails.set)
     if (thumbnailMediaItem?.publicUrl) {
       try {
         const thumbStream = await fetchStreamFromUrl(thumbnailMediaItem.publicUrl);
@@ -161,8 +162,8 @@ export async function publishVideoToYouTube(
             body: thumbStream,
           },
         });
-      } catch (thumbError) {
-        console.warn("Could not upload thumbnail to YouTube:", thumbError);
+      } catch (thumbErr) {
+        console.warn("No se pudo asignar miniatura personalizada en YouTube:", thumbErr);
       }
     }
 
@@ -173,16 +174,18 @@ export async function publishVideoToYouTube(
       success: true,
       videoId,
       videoUrl,
-      channelName: socialAccount.accountName,
+      channelName: socialAccount.accountUsername || undefined,
       privacyStatus,
       executionTimeMs,
     };
   } catch (error: any) {
-    console.error("Error publishing video to YouTube:", error);
+    console.error("Error publishing to YouTube:", error);
+    const executionTimeMs = Date.now() - startTime;
+
     return {
       success: false,
-      executionTimeMs: Date.now() - startTime,
-      errorMessage: error.message || "Error al procesar la subida a YouTube",
+      errorMessage: error.message || "Error desconocido al publicar en YouTube",
+      executionTimeMs,
     };
   }
 }

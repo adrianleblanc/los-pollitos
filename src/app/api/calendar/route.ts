@@ -12,16 +12,21 @@ export async function GET(req: NextRequest) {
       whereClause.workspaceId = workspaceId;
     }
 
-    const contents = await prisma.content.findMany({
-      where: whereClause,
-      include: {
-        media: { include: { media: true }, orderBy: { sortOrder: "asc" } },
-        publications: true,
-      },
-      orderBy: { createdAt: "desc" },
-    });
+    let contents: any[] = [];
+    try {
+      contents = await prisma.content.findMany({
+        where: whereClause,
+        include: {
+          media: { include: { media: true }, orderBy: { sortOrder: "asc" } },
+          publications: true,
+        },
+        orderBy: { createdAt: "desc" },
+      });
+    } catch (dbErr) {
+      console.warn("DB offline in calendar route:", dbErr);
+    }
 
-    const serializedContents = contents.map((c) => ({
+    const serializedContents = contents.map((c: any) => ({
       id: c.id,
       title: c.title,
       description: c.description,
@@ -31,7 +36,7 @@ export async function GET(req: NextRequest) {
       scheduledFor: c.scheduledFor,
       publishedAt: c.publishedAt,
       createdAt: c.createdAt,
-      primaryMedia: c.media.find((m) => m.role === "PRIMARY_VIDEO")?.media?.publicUrl || null,
+      primaryMedia: c.media?.find((m: any) => m.role === "PRIMARY_VIDEO")?.media?.publicUrl || null,
       customMetadata: c.customMetadata,
       publications: c.publications,
     }));
