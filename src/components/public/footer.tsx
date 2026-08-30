@@ -1,47 +1,69 @@
 import Link from "next/link";
 import { Heart, Shield } from "lucide-react";
-import { YoutubeIcon, InstagramIcon, FacebookIcon } from "@/components/ui/icons";
+import {
+  YoutubeIcon,
+  InstagramIcon,
+  FacebookIcon,
+  TikTokIcon,
+} from "@/components/ui/icons";
 
 export function PublicFooter() {
   return (
     <footer className="bg-neutral-950 border-t border-neutral-800 text-neutral-400 text-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
-          {/* Brand Col */}
+          {/* Brand Col with Official Circular Logo */}
           <div className="md:col-span-2 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-rose-400 flex items-center justify-center text-neutral-950 text-xl font-bold">
-                🐥
+              <div className="relative w-11 h-11 rounded-full overflow-hidden border-2 border-amber-400 shadow-md shadow-amber-500/20 shrink-0 bg-neutral-900">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/logo.png"
+                  alt="Los Pollitos Tejen Logo"
+                  className="w-full h-full object-cover"
+                />
               </div>
               <span className="text-lg font-black text-white">Los Pollitos Tejen</span>
             </div>
             <p className="text-neutral-400 text-xs max-w-sm leading-relaxed">
-              Canal de YouTube dedicado a compartir el amor por el tejido a crochet. Tutoriales paso a paso, prendas para mascotas, gorros y patrones creativos.
+              Canal oficial dedicado a compartir el amor por el tejido a crochet. Tutoriales paso a paso, prendas para mascotas, gorros, granny squares y patrones creativos.
             </p>
             <div className="flex items-center gap-3 pt-2">
               <a
                 href="https://www.youtube.com/@LosPollitosTejen"
                 target="_blank"
                 rel="noreferrer"
+                title="YouTube (@LosPollitosTejen)"
                 className="p-2.5 rounded-xl bg-neutral-900 hover:bg-red-500/10 hover:text-red-400 border border-neutral-800 transition-colors"
               >
                 <YoutubeIcon className="w-4 h-4" />
               </a>
               <a
-                href="https://facebook.com"
+                href="https://www.facebook.com/LosPollitosTejen"
                 target="_blank"
                 rel="noreferrer"
+                title="Facebook (/LosPollitosTejen)"
                 className="p-2.5 rounded-xl bg-neutral-900 hover:bg-blue-500/10 hover:text-blue-400 border border-neutral-800 transition-colors"
               >
                 <FacebookIcon className="w-4 h-4" />
               </a>
               <a
-                href="https://instagram.com"
+                href="https://www.instagram.com/lospollitostejen"
                 target="_blank"
                 rel="noreferrer"
+                title="Instagram (@lospollitostejen)"
                 className="p-2.5 rounded-xl bg-neutral-900 hover:bg-pink-500/10 hover:text-pink-400 border border-neutral-800 transition-colors"
               >
                 <InstagramIcon className="w-4 h-4" />
+              </a>
+              <a
+                href="https://www.tiktok.com/@lospollitostejen"
+                target="_blank"
+                rel="noreferrer"
+                title="TikTok (@lospollitostejen)"
+                className="p-2.5 rounded-xl bg-neutral-900 hover:bg-cyan-500/10 hover:text-cyan-400 border border-neutral-800 transition-colors"
+              >
+                <TikTokIcon className="w-4 h-4" />
               </a>
             </div>
           </div>
@@ -64,7 +86,7 @@ export function PublicFooter() {
               </li>
               <li>
                 <a href="#videos" className="hover:text-amber-300 transition-colors">
-                  Flores & Amigurumis
+                  Granny Squares & Tutoriales
                 </a>
               </li>
               <li>

@@ -2,19 +2,29 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Sparkles, Menu, X, Shield } from "lucide-react";
-import { YoutubeIcon, InstagramIcon, FacebookIcon } from "@/components/ui/icons";
+import { Menu, X, Shield } from "lucide-react";
+import {
+  YoutubeIcon,
+  InstagramIcon,
+  FacebookIcon,
+  TikTokIcon,
+} from "@/components/ui/icons";
 
 export function PublicNavbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 bg-neutral-950/85 backdrop-blur-md border-b border-amber-900/20">
+    <header className="sticky top-0 z-40 bg-neutral-950/90 backdrop-blur-md border-b border-amber-900/20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-        {/* Brand Logo */}
-        <Link href="/" className="flex items-center gap-3 group">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 via-amber-500 to-rose-400 flex items-center justify-center text-neutral-950 text-2xl shadow-lg shadow-amber-500/20 transition-transform group-hover:scale-105 shrink-0">
-            🐥
+        {/* Brand Logo with Official Circular Image */}
+        <Link href="/" className="flex items-center gap-3.5 group">
+          <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-amber-400/80 shadow-md shadow-amber-500/20 transition-transform group-hover:scale-105 shrink-0 bg-neutral-900">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logo.png"
+              alt="Los Pollitos Tejen Logo"
+              className="w-full h-full object-cover"
+            />
           </div>
           <div>
             <span className="text-xl font-black tracking-tight text-white block group-hover:text-amber-300 transition-colors">
@@ -54,28 +64,37 @@ export function PublicNavbar() {
               href="https://www.youtube.com/@LosPollitosTejen"
               target="_blank"
               rel="noreferrer"
-              title="YouTube"
+              title="YouTube (@LosPollitosTejen)"
               className="p-2 rounded-xl text-neutral-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
             >
               <YoutubeIcon className="w-4 h-4" />
             </a>
             <a
-              href="https://facebook.com"
+              href="https://www.facebook.com/LosPollitosTejen"
               target="_blank"
               rel="noreferrer"
-              title="Facebook"
+              title="Facebook (/LosPollitosTejen)"
               className="p-2 rounded-xl text-neutral-400 hover:text-blue-400 hover:bg-blue-500/10 transition-colors"
             >
               <FacebookIcon className="w-4 h-4" />
             </a>
             <a
-              href="https://instagram.com"
+              href="https://www.instagram.com/lospollitostejen"
               target="_blank"
               rel="noreferrer"
-              title="Instagram"
+              title="Instagram (@lospollitostejen)"
               className="p-2 rounded-xl text-neutral-400 hover:text-pink-400 hover:bg-pink-500/10 transition-colors"
             >
               <InstagramIcon className="w-4 h-4" />
+            </a>
+            <a
+              href="https://www.tiktok.com/@lospollitostejen"
+              target="_blank"
+              rel="noreferrer"
+              title="TikTok (@lospollitostejen)"
+              className="p-2 rounded-xl text-neutral-400 hover:text-cyan-400 hover:bg-cyan-500/10 transition-colors"
+            >
+              <TikTokIcon className="w-4 h-4" />
             </a>
           </div>
 
@@ -157,12 +176,28 @@ export function PublicNavbar() {
                 <YoutubeIcon className="w-4 h-4" />
               </a>
               <a
-                href="https://instagram.com"
+                href="https://www.facebook.com/LosPollitosTejen"
+                target="_blank"
+                rel="noreferrer"
+                className="p-2 rounded-lg bg-neutral-900 text-blue-400"
+              >
+                <FacebookIcon className="w-4 h-4" />
+              </a>
+              <a
+                href="https://www.instagram.com/lospollitostejen"
                 target="_blank"
                 rel="noreferrer"
                 className="p-2 rounded-lg bg-neutral-900 text-pink-400"
               >
                 <InstagramIcon className="w-4 h-4" />
+              </a>
+              <a
+                href="https://www.tiktok.com/@lospollitostejen"
+                target="_blank"
+                rel="noreferrer"
+                className="p-2 rounded-lg bg-neutral-900 text-cyan-400"
+              >
+                <TikTokIcon className="w-4 h-4" />
               </a>
             </div>
 

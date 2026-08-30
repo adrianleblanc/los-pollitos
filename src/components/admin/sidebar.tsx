@@ -58,25 +58,30 @@ const navigationItems = [
 ];
 
 interface SidebarProps {
-  user: {
+  user?: {
     name?: string | null;
     email?: string | null;
     image?: string | null;
     role?: string;
   };
-  workspaceName: string;
+  workspaceName?: string;
 }
 
-export function Sidebar({ user, workspaceName }: SidebarProps) {
+export function Sidebar({ user, workspaceName = "Los Pollitos" }: SidebarProps) {
   const pathname = usePathname();
 
   return (
     <aside className="w-64 bg-neutral-950 border-r border-neutral-800/80 flex flex-col h-screen shrink-0 sticky top-0">
-      {/* Brand & Workspace Header */}
+      {/* Brand & Workspace Header with Official Logo */}
       <div className="p-5 border-b border-neutral-800/60">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-neutral-950 font-black text-xl shadow-md shadow-amber-500/20 shrink-0">
-            🐥
+          <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-amber-400 shadow-md shadow-amber-500/20 shrink-0 bg-neutral-900">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logo.png"
+              alt="Logo"
+              className="w-full h-full object-cover"
+            />
           </div>
           <div className="min-w-0 flex-1">
             <h2 className="text-sm font-bold text-white truncate">{workspaceName}</h2>
@@ -112,13 +117,15 @@ export function Sidebar({ user, workspaceName }: SidebarProps) {
             >
               <item.icon
                 className={cn(
-                  "w-4 h-4 transition-colors shrink-0",
-                  isActive ? "text-amber-400" : "text-neutral-400 group-hover:text-neutral-200",
+                  "w-4 h-4 transition-colors",
+                  isActive
+                    ? "text-amber-400"
+                    : "text-neutral-500 group-hover:text-neutral-300",
                   item.highlight && !isActive && "text-amber-400"
                 )}
               />
-              <span className="truncate flex-1">{item.title}</span>
-              {isActive && <ChevronRight className="w-3.5 h-3.5 text-amber-400 shrink-0" />}
+              <span className="flex-1 truncate">{item.title}</span>
+              {isActive && <ChevronRight className="w-3.5 h-3.5 text-amber-400/60" />}
             </Link>
           );
         })}
@@ -129,47 +136,45 @@ export function Sidebar({ user, workspaceName }: SidebarProps) {
         <Link
           href="/"
           target="_blank"
-          className="flex items-center gap-3 px-3.5 py-2 rounded-xl text-xs font-medium text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900/60 transition-colors group"
+          className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900/60 transition-colors"
         >
-          <ExternalLink className="w-3.5 h-3.5 text-neutral-500 group-hover:text-neutral-300" />
-          <span>Ver Sitio Web Público</span>
+          <ExternalLink className="w-4 h-4 text-neutral-500" />
+          <span className="flex-1 truncate">Ver Sitio Público</span>
         </Link>
       </div>
 
-      {/* User Footer & Logout */}
-      <div className="p-3 border-t border-neutral-800/80 bg-neutral-900/30">
-        <div className="p-2.5 rounded-xl bg-neutral-900/80 border border-neutral-800/80 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5 min-w-0">
-            {user.image ? (
+      {/* User Profile & Footer */}
+      <div className="p-4 border-t border-neutral-800/60 bg-neutral-950/50">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-9 h-9 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center text-xs font-bold text-amber-400 overflow-hidden shrink-0">
+            {user?.image ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={user.image}
                 alt={user.name || "Usuario"}
-                className="w-8 h-8 rounded-full border border-neutral-700 shrink-0 object-cover"
+                className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center justify-center font-bold text-xs shrink-0">
-                {user.name ? user.name.slice(0, 2).toUpperCase() : "LP"}
-              </div>
+              (user?.name?.[0] || "A").toUpperCase()
             )}
-            <div className="min-w-0">
-              <p className="text-xs font-semibold text-white truncate">
-                {user.name || "Administrador"}
-              </p>
-              <p className="text-[10px] text-neutral-400 truncate">
-                {user.role || "OWNER"}
-              </p>
-            </div>
           </div>
-
-          <button
-            onClick={() => signOut({ callbackUrl: "/login" })}
-            title="Cerrar Sesión"
-            className="p-1.5 rounded-lg text-neutral-400 hover:text-red-400 hover:bg-red-500/10 transition-colors shrink-0 cursor-pointer"
-          >
-            <LogOut className="w-4 h-4" />
-          </button>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-semibold text-white truncate">
+              {user?.name || "Adrian Leblanc"}
+            </p>
+            <p className="text-[11px] text-neutral-400 truncate">
+              {user?.email || "adrian@lospollitos.com"}
+            </p>
+          </div>
         </div>
+
+        <button
+          onClick={() => signOut({ callbackUrl: "/login" })}
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-medium text-neutral-400 hover:text-red-400 hover:bg-red-500/10 border border-neutral-800/80 transition-colors cursor-pointer"
+        >
+          <LogOut className="w-3.5 h-3.5" />
+          <span>Cerrar Sesión</span>
+        </button>
       </div>
     </aside>
   );

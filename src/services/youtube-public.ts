@@ -27,7 +27,7 @@ export const FALLBACK_CHANNEL: ChannelInfo = {
     "¡Bienvenidos a Los Pollitos Tejen! 🧶✨ Tutoriales de tejido a crochet con amor, proyectos paso a paso para todos los niveles y las ideas más lindas para crear con tus manos.",
   subscriberCount: "9.6K",
   videoCount: "156",
-  avatarUrl: "https://i.ytimg.com/vi/bd25PBimhCM/hqdefault.jpg",
+  avatarUrl: "/logo.png",
   bannerUrl: "https://i.ytimg.com/vi/zkJvtnHP9AQ/hqdefault.jpg",
 };
 

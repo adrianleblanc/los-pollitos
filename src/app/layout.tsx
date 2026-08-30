@@ -14,11 +14,17 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Los Pollitos — Canal Oficial y Estudio de Contenido",
+  title: "Los Pollitos Tejen — Canal Oficial y Estudio de Contenido",
   description:
-    "Sitio web oficial y plataforma de distribución multimedia del canal Los Pollitos.",
+    "Sitio web oficial y plataforma de distribución multimedia del canal Los Pollitos Tejen. Tutoriales de tejido a crochet con amor.",
   icons: {
-    icon: "/favicon.ico",
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
+  openGraph: {
+    title: "Los Pollitos Tejen — Canal Oficial",
+    description: "Tutoriales de tejido a crochet con amor, proyectos paso a paso para todos los niveles.",
+    images: [{ url: "/logo.png" }],
   },
 };
 

@@ -10,12 +10,12 @@ export function AboutSection() {
     },
     {
       title: "Proyectos para Todos",
-      desc: "Desde tus primeras cadenetas hasta prendas complejas para mascotas, gorros temáticos y decoración.",
+      desc: "Desde tus primeras cadenetas hasta prendas para mascotas, gorros temáticos, granny squares y decoración.",
       icon: "🐱",
     },
     {
       title: "Comunidad Cálida",
-      desc: "Más de 9.600 amantes del tejido que comparten sus dudas, avances y creaciones.",
+      desc: "Más de 9.600 amantes del tejido que comparten sus dudas, avances y creaciones día a día.",
       icon: "🐥",
     },
   ];
@@ -24,13 +24,18 @@ export function AboutSection() {
     <section id="sobre-nosotros" className="py-16 md:py-24 bg-gradient-to-b from-neutral-950 via-neutral-900/50 to-neutral-950 border-t border-b border-amber-950/20 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          {/* Mascot / Visual Card */}
+          {/* Mascot / Visual Card with Official Logo */}
           <div className="lg:col-span-5 text-center">
             <div className="relative inline-block">
               <div className="w-64 h-64 sm:w-72 sm:h-72 rounded-3xl bg-gradient-to-br from-amber-400 via-amber-500 to-rose-400 p-1.5 shadow-2xl shadow-amber-500/20">
                 <div className="w-full h-full rounded-[22px] bg-neutral-950 flex flex-col items-center justify-center p-6 text-center">
-                  <div className="w-24 h-24 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-5xl mb-4 shadow-inner">
-                    🐥
+                  <div className="relative w-28 h-28 rounded-full overflow-hidden border-2 border-amber-400/80 shadow-lg shadow-amber-500/30 mb-3 bg-neutral-900">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src="/logo.png"
+                      alt="Los Pollitos Tejen Logo Oficial"
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <h3 className="text-xl font-black text-white">Los Pollitos Tejen</h3>
                   <p className="text-xs text-amber-300 font-medium mt-1">
@@ -39,7 +44,7 @@ export function AboutSection() {
                   <div className="mt-4 pt-3 border-t border-neutral-800 flex items-center justify-center gap-3 text-xs text-neutral-400">
                     <span>9.6K Suscriptores</span>
                     <span>•</span>
-                    <span>156 Videos</span>
+                    <span>156+ Videos</span>
                   </div>
                 </div>
               </div>
