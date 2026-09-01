@@ -4,7 +4,6 @@ import {
   YoutubeIcon,
   InstagramIcon,
   FacebookIcon,
-  TikTokIcon,
 } from "@/components/ui/icons";
 
 export function PublicFooter() {
@@ -55,15 +54,6 @@ export function PublicFooter() {
                 className="p-2.5 rounded-xl bg-neutral-900 hover:bg-pink-500/10 hover:text-pink-400 border border-neutral-800 transition-colors"
               >
                 <InstagramIcon className="w-4 h-4" />
-              </a>
-              <a
-                href="https://www.tiktok.com/@lospollitostejen"
-                target="_blank"
-                rel="noreferrer"
-                title="TikTok (@lospollitostejen)"
-                className="p-2.5 rounded-xl bg-neutral-900 hover:bg-cyan-500/10 hover:text-cyan-400 border border-neutral-800 transition-colors"
-              >
-                <TikTokIcon className="w-4 h-4" />
               </a>
             </div>
           </div>

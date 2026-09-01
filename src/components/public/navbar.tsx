@@ -7,7 +7,6 @@ import {
   YoutubeIcon,
   InstagramIcon,
   FacebookIcon,
-  TikTokIcon,
 } from "@/components/ui/icons";
 
 export function PublicNavbar() {
@@ -80,15 +79,6 @@ export function PublicNavbar() {
               className="p-2 rounded-xl text-neutral-400 hover:text-pink-400 hover:bg-pink-500/10 transition-colors"
             >
               <InstagramIcon className="w-4 h-4" />
-            </a>
-            <a
-              href="https://www.tiktok.com/@lospollitostejen"
-              target="_blank"
-              rel="noreferrer"
-              title="TikTok (@lospollitostejen)"
-              className="p-2 rounded-xl text-neutral-400 hover:text-cyan-400 hover:bg-cyan-500/10 transition-colors"
-            >
-              <TikTokIcon className="w-4 h-4" />
             </a>
           </div>
 
@@ -184,14 +174,6 @@ export function PublicNavbar() {
                 className="p-2 rounded-lg bg-neutral-900 text-pink-400"
               >
                 <InstagramIcon className="w-4 h-4" />
-              </a>
-              <a
-                href="https://www.tiktok.com/@lospollitostejen"
-                target="_blank"
-                rel="noreferrer"
-                className="p-2 rounded-lg bg-neutral-900 text-cyan-400"
-              >
-                <TikTokIcon className="w-4 h-4" />
               </a>
             </div>
 
