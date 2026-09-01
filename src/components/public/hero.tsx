@@ -46,7 +46,7 @@ export function PublicHero({ channel, featuredVideo }: HeroProps) {
               </h1>
 
               <p className="text-base sm:text-lg text-neutral-300 max-w-xl mx-auto lg:mx-0 leading-relaxed font-normal">
-                Descubre tutoriales detallados para todos los niveles: desde adorables
+                Descubre muchos tutoriales detallados para todos los niveles: desde adorables
                 trajes para gatos y perritos, gorros temáticos, hasta accesorios,
                 flores y amigurumis explicados con paciencia y cariño.
               </p>
